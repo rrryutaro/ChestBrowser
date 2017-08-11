@@ -1,6 +1,7 @@
 author = R
 version = 0.0.0.1
 displayName = Chest Browser
+homepage = https://forums.terraria.org/index.php?threads/chest-browser.60952/
 buildIgnore = .vs\*, Properties\*, *.csproj, *.user, obj\*, bin\*, *.config, unused\*
 includePDB = false
 languageVersion = 6
