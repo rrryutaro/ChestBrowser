@@ -48,9 +48,26 @@ namespace ChestBrowser
         public static Item ToItem(this Chest chest)
         {
             Item result = new Item();
-            Tile tile = Main.tile[chest.x, chest.y];
-            int itemType = Chest.chestTypeToIcon[(int)(tile.frameX / 36)];
+            Tile tile = chest.getTile();
+            int itemType = tile.type == 88 ? Chest.dresserTypeToIcon[(int)(tile.frameX / 54)] : Chest.chestTypeToIcon[(int)(tile.frameX / 36)];
+
             result.SetDefaults(itemType);
+
+            return result;
+        }
+        public static Tile getTile(this Chest chest)
+        {
+            Tile result = Main.tile[chest.x, chest.y];
+            return result;
+        }
+
+        public static Vector2 getCenter(this Chest chest)
+        {
+            Vector2 result = new Vector2(chest.x * tileSize, chest.y * tileSize);
+            if (chest.getTile().type == 88)
+                result = result.Offset(tileSize + tileSize / 2, tileSize);
+            else
+                result = result.Offset(tileSize, tileSize);
 
             return result;
         }
@@ -61,6 +78,5 @@ namespace ChestBrowser
             position.Y += y;
             return position;
         }
-
     }
 }

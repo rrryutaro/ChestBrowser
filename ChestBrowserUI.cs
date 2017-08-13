@@ -20,9 +20,11 @@ namespace ChestBrowser
 		internal UIPanel inlaidPanel;
 		internal UIGrid chestGrid;
         internal UIHoverImageButton closeButton;
+        internal UIImageListButton lineButton;
 
         internal bool updateNeeded;
-        internal string caption = "Chest Browser v0.0.0.1   Chest:??";
+        internal string caption = "Chest Browser v0.0.1.0 Chest:??";
+        internal bool isDrawLine = true;
 
 
         public ChestBrowserUI(UserInterface ui) : base(ui)
@@ -79,14 +81,27 @@ namespace ChestBrowser
 			lootItemsScrollbar.Left.Set(-20, 1f);
 			inlaidPanel.Append(lootItemsScrollbar);
 			chestGrid.SetScrollbar(lootItemsScrollbar);
+
+            lineButton = new UIImageListButton(
+                new List<Texture2D>() { Main.inventoryTickOnTexture, Main.inventoryTickOffTexture },
+                new List<string>() { "Do not display straight lines to chest with clicks", "Display straight line on chest by clicking" });
+            lineButton.OnClick += LineButtonClicked;
+            lineButton.Left.Set(-40f, 1f);
+            //closeButton.Top.Set(6f, 0f);
+            lineButton.Top.Set(3f, 0f);
+            mainPanel.Append(lineButton);
         }
 
         private void CloseButtonClicked(UIMouseEvent evt, UIElement listeningElement)
 		{
             ChestBrowser.instance.chestBrowserTool.visible = !ChestBrowser.instance.chestBrowserTool.visible;
         }
+        private void LineButtonClicked(UIMouseEvent evt, UIElement listeningElement)
+        {
+            lineButton.Index = lineButton.Index == 0 ? 1 : 0;
+        }
 
-		internal void UpdateGrid()
+        internal void UpdateGrid()
 		{
 			if (!updateNeeded) { return; }
 			updateNeeded = false;
@@ -123,6 +138,17 @@ namespace ChestBrowser
         public override void LoadJsonString(string jsonString)
         {
             mainPanel.LoadPositionJsonString(jsonString);
+        }
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            base.Draw(spriteBatch);
+
+            Player player = Main.LocalPlayer;
+            if (lineButton.Index == 0 && 0 <= player.chest)
+            {
+                Utils.DrawLine(spriteBatch, player.Center, Main.chest[player.chest].getCenter(), Color.Red, Color.Red, 1);
+            }
         }
     }
 }
