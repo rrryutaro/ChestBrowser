@@ -37,6 +37,8 @@
     <Compile Include="ChestBrowser.cs" />
     <Compile Include="ChestBrowserPlayer.cs" />
     <Compile Include="ChestBrowserTool.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="FilterItemTypeUI.cs" />
     <Compile Include="ChestBrowserUI.cs" />
     <Compile Include="ChestBrowserUtils.cs" />
     <Compile Include="obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
@@ -46,6 +48,7 @@
     <Compile Include="obj\Release\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
     <Compile Include="obj\Release\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
     <Compile Include="Tool.cs" />
+    <Compile Include="UIElements\UIFilterChestSlot.cs" />
     <Compile Include="UIElements\UIChestSlot.cs" />
     <Compile Include="UIElements\UIDragablePanel.cs" />
     <Compile Include="UIElements\UIGrid.cs" />
@@ -88,6 +91,10 @@
     <ProjectReference Include="..\..\..\\tModLoader\src\tModLoader\Terraria.csproj">
       <Project>{3996d5fa-6e59-4fe4-9f2b-40eeef9645d5}</Project>
       <Name>Terraria</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FKTModSettings\FKTModSettings.csproj">
+      <Project>{70439a48-ddbe-4116-b99f-335d204f4fc5}</Project>
+      <Name>FKTModSettings</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

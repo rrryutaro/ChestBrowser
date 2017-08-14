@@ -19,7 +19,14 @@ namespace ChestBrowser
 			{
                 ChestBrowser.instance.chestBrowserTool.visible = !ChestBrowser.instance.chestBrowserTool.visible;
                 if (ChestBrowser.instance.chestBrowserTool.visible)
+                {
                     ChestBrowserUI.instance.updateNeeded = true;
+
+                    ChestBrowser.instance.filterItemTypeTool.visible = true;
+                    FilterItemTypeUI.instance.updateNeeded = true;
+                }
+                else
+                    ChestBrowser.instance.filterItemTypeTool.visible = false;
             }
         }
 
@@ -28,6 +35,7 @@ namespace ChestBrowser
             return new TagCompound
             {
                 ["ChestBrowserUI"] = ChestBrowser.instance.chestBrowserTool.uistate.SaveJsonString(),
+                ["FilterItemTypeUI"] = ChestBrowser.instance.filterItemTypeTool.uistate.SaveJsonString(),
             };
         }
 
@@ -37,7 +45,11 @@ namespace ChestBrowser
             {
                 ChestBrowser.instance.chestBrowserTool.uistate.LoadJsonString(tag.GetString("ChestBrowserUI"));
             }
-		}
+            if (tag.ContainsKey("FilterItemTypeUI"))
+            {
+                ChestBrowser.instance.filterItemTypeTool.uistate.LoadJsonString(tag.GetString("FilterItemTypeUI"));
+            }
+        }
 
         /// <summary>
         /// チェストブラウザーを表示中はタイルレンジを無制限にする
@@ -51,8 +63,8 @@ namespace ChestBrowser
             {
                 if (ChestBrowser.instance.chestBrowserTool.visible)
                 {
-                    Player.tileRangeX = int.MaxValue / 32 - 20;
-                    Player.tileRangeY = int.MaxValue / 32 - 20;
+                    Player.tileRangeX = Config.isInfinityRange ? ChestBrowserUtils.InfinityRange : Config.searchRangeX / 2;
+                    Player.tileRangeY = Config.isInfinityRange ? ChestBrowserUtils.InfinityRange : Config.searchRangeY / 2;
                 }
             }
         }

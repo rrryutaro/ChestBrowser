@@ -169,7 +169,7 @@ namespace ChestBrowser
         }
         public void LoadPositionJsonString(string jsonString)
         {
-            if (string.IsNullOrEmpty(jsonString))
+            if (!string.IsNullOrEmpty(jsonString))
             {
                 var pos = JsonConvert.DeserializeObject<CalculatedStyle>(jsonString);
                 Top.Pixels = pos.Y;

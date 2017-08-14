@@ -77,4 +77,20 @@ namespace ChestBrowser
 			}
 		}
 	}
+
+    class ChestBrowserTool : Tool
+    {
+        public ChestBrowserTool() : base(typeof(ChestBrowserUI))
+        {
+
+        }
+    }
+
+    class FilterItemTypeTool : Tool
+    {
+        public FilterItemTypeTool() : base(typeof(FilterItemTypeUI))
+        {
+
+        }
+    }
 }

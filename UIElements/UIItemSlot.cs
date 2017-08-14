@@ -19,6 +19,7 @@ namespace ChestBrowser
 		private float scale = .75f;
 		public int itemType;
 		public Item item;
+        public bool disable;
 
 		public UIItemSlot(Item item, float scale = .75f)
 		{
@@ -38,9 +39,10 @@ namespace ChestBrowser
 			{
 				CalculatedStyle dimensions = base.GetInnerDimensions();
 				Rectangle rectangle = dimensions.ToRectangle();
-				spriteBatch.Draw(backgroundTexture, dimensions.Position(), null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+                //spriteBatch.Draw(backgroundTexture, dimensions.Position(), null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+                spriteBatch.Draw(backgroundTexture, dimensions.Position(), null, disable ? Color.Gray : Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
 
-				if (!item.IsAir)
+                if (!item.IsAir)
 				{
 
 					Texture2D itemTexture = Main.itemTexture[this.item.type];
@@ -53,8 +55,10 @@ namespace ChestBrowser
 					{
 						rectangle2 = itemTexture.Frame(1, 1, 0, 0);
 					}
-					Color newColor = Color.White;
-					float pulseScale = 1f;
+                    //Color newColor = Color.White;
+                    Color newColor = disable ? Color.Gray : Color.White;
+
+                    float pulseScale = 1f;
 					ItemSlot.GetItemLight(ref newColor, ref pulseScale, item, false);
 					int height = rectangle2.Height;
 					int width = rectangle2.Width;
@@ -98,28 +102,6 @@ namespace ChestBrowser
 					{
 						ChatManager.DrawColorCodedStringWithShadow(spriteBatch, Main.fontItemStack, item.stack.ToString(), dimensions.Position() + new Vector2(10f, 26f) * scale, Color.White, 0f, Vector2.Zero, new Vector2(scale), -1f, scale);
 					}
-
-					//this.item.GetColor(Color.White);
-					//spriteBatch.Draw(itemTexture, drawPosition, rectangle2, this.item.GetAlpha(Color.White), 0f, Vector2.Zero, drawScale, SpriteEffects.None, 0f);
-					//if (this.item.color != default(Color))
-					//{
-					//	spriteBatch.Draw(itemTexture, drawPosition, new Rectangle?(rectangle2), this.item.GetColor(Color.White), 0f, Vector2.Zero, drawScale, SpriteEffects.None, 0f);
-					//}
-					//if (this.item.stack > 1)
-					//{
-					//	spriteBatch.DrawString(Main.fontItemStack, this.item.stack.ToString(), new Vector2(drawPosition.X + 10f * scale, drawPosition.Y + 26f * scale), Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-					//}
-
-					//if (IsMouseHovering)
-					//{
-					//	// TODO, should only need 2 of these 3 I think
-					//	Main.HoverItem = item.Clone();
-					//	Main.hoverItemName = Main.HoverItem.Name + (Main.HoverItem.modItem != null ? " [" + Main.HoverItem.modItem.mod.Name + "]" : "");
-                    //
-					//	//	Main.hoverItemName = this.item.name;
-					//	//	Main.toolTip = item.Clone();
-					//	Main.HoverItem.SetNameOverride(Main.HoverItem.Name + (Main.HoverItem.modItem != null ? " [" + Main.HoverItem.modItem.mod.Name + "]" : ""));
-					//}
 				}
 			}
 		}

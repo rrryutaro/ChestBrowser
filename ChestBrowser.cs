@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.UI;
 using Terraria.ModLoader;
+using FKTModSettings;
 
 namespace ChestBrowser
 {
@@ -10,6 +11,9 @@ namespace ChestBrowser
         internal static ChestBrowser instance;
         internal ModHotKey HotKey;
         internal ChestBrowserTool chestBrowserTool;
+        internal FilterItemTypeTool filterItemTypeTool;
+
+        public bool LoadedFKTModSettings = false;
 
         int lastSeenScreenWidth;
         int lastSeenScreenHeight;
@@ -28,9 +32,23 @@ namespace ChestBrowser
         {
             instance = this;
             HotKey = RegisterHotKey("Toggle Chest Browser", "U");
-            if (!Main.dedServ /*&& !CheatSheetLoaded*/)
+            if (!Main.dedServ)
             {
                 chestBrowserTool = new ChestBrowserTool();
+                filterItemTypeTool = new FilterItemTypeTool();
+
+                Config.LoadConfig();
+                LoadedFKTModSettings = ModLoader.GetMod("FKTModSettings") != null;
+                try
+                {
+                    if (LoadedFKTModSettings)
+                    {
+                        LoadModSettings();
+                    }
+                }
+                catch { }
+
+
             }
         }
 
@@ -51,7 +69,9 @@ namespace ChestBrowser
                             lastSeenScreenHeight = Main.screenHeight;
                         }
                         chestBrowserTool.UIUpdate();
+                        filterItemTypeTool.UIUpdate();
                         chestBrowserTool.UIDraw();
+                        filterItemTypeTool.UIDraw();
 
                         return true;
                     },
@@ -67,10 +87,49 @@ namespace ChestBrowser
                     delegate
                     {
                         chestBrowserTool.TooltipDraw();
+                        filterItemTypeTool.TooltipDraw();
                         return true;
                     },
                     InterfaceScaleType.UI)
                 );
+            }
+        }
+
+        public override void PreSaveAndQuit()
+        {
+            Config.SaveValues();
+        }
+
+        public override void PostUpdateInput()
+        {
+            try
+            {
+                if (LoadedFKTModSettings && !Main.gameMenu)
+                {
+                    UpdateModSettings();
+                }
+            }
+            catch { }
+        }
+
+        private void LoadModSettings()
+        {
+            ModSetting setting = ModSettingsAPI.CreateModSettingConfig(this);
+            setting.AddBool("isCheatMod", "Enable Cheat Mode", false);
+            setting.AddBool("isInfinityRange", "Enable Infinity Range", false);
+            setting.AddInt("searchRangeX", "Search Range X", 4, ChestBrowserUtils.maxTilesX, false);
+            setting.AddInt("searchRangeY", "Search Range Y", 4, ChestBrowserUtils.maxTilesY, false);
+        }
+
+        private void UpdateModSettings()
+        {
+            ModSetting setting;
+            if (ModSettingsAPI.TryGetModSetting(this, out setting))
+            {
+                setting.Get("isCheatMod", ref Config.isCheatMode);
+                setting.Get("isInfinityRange", ref Config.isInfinityRange);
+                setting.Get("searchRangeX", ref Config.searchRangeX);
+                setting.Get("searchRangeY", ref Config.searchRangeY);
             }
         }
 

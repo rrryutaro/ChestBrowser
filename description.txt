@@ -1,9 +1,12 @@
 Chest Browser:
 Left double click on any Chest to teleport to chest.
 Right click on any Chest to open chest.
+In the filter setting, you can turn on / off the display by right-clicking the chest.
 
 Use the hotkey to show/hide the chest browser.
 
-*** Acknowledgments ***
-The code of most of this Mod is based on Mr. jopojelly's Recipe Browser.
-I am thankful to jopojelly for publishing great code.
+*** Acknowledgment ***
+Most of this Mod's code is based on jopojelly's Recipe Browser.
+I am grateful to Mr. jopojelly for publishing a great code.
+In addition, Mod Settings uses Mod Settings Configurator.
+I am grateful to Mr. Flashkirby99 for making the setting of Mod easy.

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.UI;
+using Terraria.ID;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using ChestBrowser.UIElements;
@@ -21,9 +22,10 @@ namespace ChestBrowser
 		internal UIGrid chestGrid;
         internal UIHoverImageButton closeButton;
         internal UIImageListButton lineButton;
+        internal UIHoverImageButton filterSettingButton;
 
         internal bool updateNeeded;
-        internal string caption = "Chest Browser v0.0.1.0 Chest:??";
+        internal string caption = "Chest Browser v0.0.2.0 Chest:??";
         internal bool isDrawLine = true;
 
 
@@ -87,18 +89,31 @@ namespace ChestBrowser
                 new List<string>() { "Do not display straight lines to chest with clicks", "Display straight line on chest by clicking" });
             lineButton.OnClick += LineButtonClicked;
             lineButton.Left.Set(-40f, 1f);
-            //closeButton.Top.Set(6f, 0f);
             lineButton.Top.Set(3f, 0f);
             mainPanel.Append(lineButton);
+
+            //テクスチャのリサイズ
+            filterSettingButton = new UIHoverImageButton(Main.itemTexture[ItemID.Cog].Resize(14, 14), "Filter Setting");
+            filterSettingButton.OnClick += showFilterSettingButtonClicked;
+            filterSettingButton.Left.Set(-60f, 1f);
+            filterSettingButton.Top.Set(3f, 0f);
+            mainPanel.Append(filterSettingButton);
+
         }
 
         private void CloseButtonClicked(UIMouseEvent evt, UIElement listeningElement)
 		{
-            ChestBrowser.instance.chestBrowserTool.visible = !ChestBrowser.instance.chestBrowserTool.visible;
+            ChestBrowser.instance.chestBrowserTool.visible = false;
         }
         private void LineButtonClicked(UIMouseEvent evt, UIElement listeningElement)
         {
             lineButton.Index = lineButton.Index == 0 ? 1 : 0;
+        }
+        private void showFilterSettingButtonClicked(UIMouseEvent evt, UIElement listeningElement)
+        {
+            ChestBrowser.instance.filterItemTypeTool.visible = !ChestBrowser.instance.filterItemTypeTool.visible;
+            if (ChestBrowser.instance.filterItemTypeTool.visible)
+                FilterItemTypeUI.instance.updateNeeded = true;
         }
 
         internal void UpdateGrid()
@@ -111,7 +126,10 @@ namespace ChestBrowser
             mainPanel.AddDragTarget(inlaidPanel);
             mainPanel.AddDragTarget(chestGrid);
 
-            foreach (var chest in Main.chest.Where(x => x != null))
+            FilterItemTypeUI.Clear();
+
+            var rect = ChestBrowserUtils.GetSearchRangeRectangle();
+            foreach (var chest in Main.chest.Where(x => x != null && (Config.isInfinityRange ? true : rect.Contains(x.x, x.y)) && FilterItemTypeUI.isView(x) ))
             {
                 var box = new UIChestSlot(chest, 1f);
                 chestGrid._items.Add(box);
@@ -149,6 +167,23 @@ namespace ChestBrowser
             {
                 Utils.DrawLine(spriteBatch, player.Center, Main.chest[player.chest].getCenter(), Color.Red, Color.Red, 1);
             }
+        }
+
+        public override void MouseDown(UIMouseEvent evt)
+        {
+            if (!Config.isCheatMode && !this.ContainsPoint(evt.MousePosition))
+            {
+                ChestBrowser.instance.chestBrowserTool.visible = false;
+            }
+            base.MouseDown(evt);
+        }
+        public override void RightMouseDown(UIMouseEvent evt)
+        {
+            if (!Config.isCheatMode && !this.ContainsPoint(evt.MousePosition))
+            {
+                ChestBrowser.instance.chestBrowserTool.visible = false;
+            }
+            base.RightMouseDown(evt);
         }
     }
 }
