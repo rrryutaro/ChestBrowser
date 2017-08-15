@@ -1,5 +1,5 @@
 author = R
-version = 0.0.2.0
+version = 0.0.3.0
 displayName = Chest Browser
 homepage = https://forums.terraria.org/index.php?threads/chest-browser.60952/
 

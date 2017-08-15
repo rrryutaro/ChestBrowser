@@ -19,7 +19,7 @@ namespace ChestBrowser
     {
         private static string ConfigPath = $@"{Main.SavePath}\Mod Configs\ChestBrowser.json";
         private static Preferences config;
-        private static int version = 1;
+        private static int version = 2;
         public static void LoadConfig()
         {
             config = new Preferences(ConfigPath);
@@ -31,6 +31,11 @@ namespace ChestBrowser
                 config.Get("isInfinityRange", ref isInfinityRange);
                 config.Get("searchRangeX", ref searchRangeX);
                 config.Get("searchRangeY", ref searchRangeY);
+                if (2 <= version)
+                {
+                    config.Get("isKillTileProtect", ref isKillTileProtect);
+                    config.Get("isKillWallProtect", ref isKillWallProtect);
+                }
             }
             else
             {
@@ -52,5 +57,8 @@ namespace ChestBrowser
         public static bool isInfinityRange = false;
         public static int searchRangeX = Main.screenWidth / ChestBrowserUtils.tileSize;
         public static int searchRangeY = Main.screenHeight / ChestBrowserUtils.tileSize;
+        //Versuin: 2
+        public static bool isKillTileProtect = true;
+        public static bool isKillWallProtect = true;
     }
 }

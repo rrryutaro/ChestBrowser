@@ -25,7 +25,7 @@ namespace ChestBrowser
         internal UIHoverImageButton filterSettingButton;
 
         internal bool updateNeeded;
-        internal string caption = "Chest Browser v0.0.2.0 Chest:??";
+        internal string caption = "Chest Browser v0.0.3.0 Chest:??";
         internal bool isDrawLine = true;
 
 
@@ -92,7 +92,6 @@ namespace ChestBrowser
             lineButton.Top.Set(3f, 0f);
             mainPanel.Append(lineButton);
 
-            //テクスチャのリサイズ
             filterSettingButton = new UIHoverImageButton(Main.itemTexture[ItemID.Cog].Resize(14, 14), "Filter Setting");
             filterSettingButton.OnClick += showFilterSettingButtonClicked;
             filterSettingButton.Left.Set(-60f, 1f);

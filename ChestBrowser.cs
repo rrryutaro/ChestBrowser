@@ -119,6 +119,8 @@ namespace ChestBrowser
             setting.AddBool("isInfinityRange", "Enable Infinity Range", false);
             setting.AddInt("searchRangeX", "Search Range X", 4, ChestBrowserUtils.maxTilesX, false);
             setting.AddInt("searchRangeY", "Search Range Y", 4, ChestBrowserUtils.maxTilesY, false);
+            setting.AddBool("isKillTileProtect", "Enable Kill Tile Protect", false);
+            setting.AddBool("isKillWallProtect", "Enable Kill Wall Protect", false);
         }
 
         private void UpdateModSettings()
@@ -130,8 +132,55 @@ namespace ChestBrowser
                 setting.Get("isInfinityRange", ref Config.isInfinityRange);
                 setting.Get("searchRangeX", ref Config.searchRangeX);
                 setting.Get("searchRangeY", ref Config.searchRangeY);
+                setting.Get("isKillTileProtect", ref Config.isKillTileProtect);
+                setting.Get("isKillWallProtect", ref Config.isKillWallProtect);
             }
         }
 
+    }
+
+    class ChestBrowserGlobalTile : GlobalTile
+    {
+        public override void KillTile(int i, int j, int type, ref bool fail, ref bool effectOnly, ref bool noItem)
+        {
+            if (!fail && ChestBrowser.instance.chestBrowserTool.visible && Config.isKillTileProtect)
+                fail = true;
+        }
+        public override bool CreateDust(int i, int j, int type, ref int dustType)
+        {
+            bool result = true;
+            if (ChestBrowser.instance.chestBrowserTool.visible)
+                result = !Config.isKillTileProtect;
+            return result;
+        }
+        public override bool KillSound(int i, int j, int type)
+        {
+            bool result = true;
+            if (ChestBrowser.instance.chestBrowserTool.visible)
+                result = !Config.isKillTileProtect;
+            return result;
+        }
+    }
+    class ChestBrowserGlobalWall : GlobalWall
+    {
+        public override void KillWall(int i, int j, int type, ref bool fail)
+        {
+            if (!fail && ChestBrowser.instance.chestBrowserTool.visible && Config.isKillWallProtect)
+                fail = true;
+        }
+        public override bool CreateDust(int i, int j, int type, ref int dustType)
+        {
+            bool result = true;
+            if (ChestBrowser.instance.chestBrowserTool.visible)
+                result = !Config.isKillWallProtect;
+            return result;
+        }
+        public override bool KillSound(int i, int j, int type)
+        {
+            bool result = true;
+            if (ChestBrowser.instance.chestBrowserTool.visible)
+                result = !Config.isKillWallProtect;
+            return result;
+        }
     }
 }

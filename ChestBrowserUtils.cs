@@ -110,12 +110,13 @@ namespace ChestBrowser
         public static Texture2D Resize(this Texture2D texture, int width, int height)
         {
             Texture2D result = texture;
-            System.IO.MemoryStream ms = new System.IO.MemoryStream();
-            texture.SaveAsPng(ms, 14, 14);
-            result = Texture2D.FromStream(texture.GraphicsDevice, ms);
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                texture.SaveAsPng(ms, width, height);
+                result = Texture2D.FromStream(texture.GraphicsDevice, ms);
+            }
             return result;
         }
-
 
         /// <summary>
         /// 指定の座標のチェストがロックされている場合、強制的に解錠する。

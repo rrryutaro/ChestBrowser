@@ -13,7 +13,11 @@ namespace ChestBrowser
 {
 	public class ChestBrowserPlayer : ModPlayer
 	{
-		public override void ProcessTriggers(TriggersSet triggersSet)
+        private string saveInfoChestBrowserUI;
+        private string saveInfoFilterItemTypeUI;
+
+
+        public override void ProcessTriggers(TriggersSet triggersSet)
 		{
 			if (ChestBrowser.instance.HotKey.JustPressed)
 			{
@@ -43,13 +47,20 @@ namespace ChestBrowser
 		{
             if (tag.ContainsKey("ChestBrowserUI"))
             {
-                ChestBrowser.instance.chestBrowserTool.uistate.LoadJsonString(tag.GetString("ChestBrowserUI"));
+                saveInfoChestBrowserUI = tag.GetString("ChestBrowserUI");
             }
             if (tag.ContainsKey("FilterItemTypeUI"))
             {
-                ChestBrowser.instance.filterItemTypeTool.uistate.LoadJsonString(tag.GetString("FilterItemTypeUI"));
+                saveInfoFilterItemTypeUI = tag.GetString("FilterItemTypeUI");
             }
         }
+
+        public override void OnEnterWorld(Player player)
+        {
+            ChestBrowser.instance.chestBrowserTool.uistate.LoadJsonString(saveInfoChestBrowserUI);
+            ChestBrowser.instance.filterItemTypeTool.uistate.LoadJsonString(saveInfoFilterItemTypeUI);
+        }
+
 
         /// <summary>
         /// チェストブラウザーを表示中はタイルレンジを無制限にする

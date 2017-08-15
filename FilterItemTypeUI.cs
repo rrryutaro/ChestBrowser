@@ -181,7 +181,6 @@ namespace ChestBrowser
                 if (info.dresserTypeView != null)
                     dresserTypeView = info.dresserTypeView.Split(',').Select(x => x.Equals("1") ? true : false).ToArray<bool>();
             }
-            
         }
 
         public override void Draw(SpriteBatch spriteBatch)
