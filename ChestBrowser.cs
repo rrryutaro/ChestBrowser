@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
 using Terraria.UI;
 using Terraria.ModLoader;
@@ -47,8 +48,6 @@ namespace ChestBrowser
                     }
                 }
                 catch { }
-
-
             }
         }
 
@@ -137,50 +136,66 @@ namespace ChestBrowser
             }
         }
 
+        public static bool isKillTileProtect()
+        {
+            bool result = ChestBrowser.instance.chestBrowserTool.visible && Config.isKillTileProtect;
+            return result;
+        }
+        public static bool isKillWallProtect()
+        {
+            bool result = ChestBrowser.instance.chestBrowserTool.visible && Config.isKillWallProtect;
+            return result;
+        }
     }
 
     class ChestBrowserGlobalTile : GlobalTile
     {
+        public override bool CanKillTile(int i, int j, int type, ref bool blockDamaged)
+        {
+            return !ChestBrowser.isKillTileProtect();
+        }
         public override void KillTile(int i, int j, int type, ref bool fail, ref bool effectOnly, ref bool noItem)
         {
-            if (!fail && ChestBrowser.instance.chestBrowserTool.visible && Config.isKillTileProtect)
+            if (ChestBrowser.isKillTileProtect())
+            {
                 fail = true;
+                effectOnly = true;
+                noItem = true;
+            }
         }
         public override bool CreateDust(int i, int j, int type, ref int dustType)
         {
-            bool result = true;
-            if (ChestBrowser.instance.chestBrowserTool.visible)
-                result = !Config.isKillTileProtect;
-            return result;
+            return !ChestBrowser.isKillTileProtect();
         }
         public override bool KillSound(int i, int j, int type)
         {
-            bool result = true;
-            if (ChestBrowser.instance.chestBrowserTool.visible)
-                result = !Config.isKillTileProtect;
-            return result;
+            return !ChestBrowser.isKillTileProtect();
+        }
+        public override bool Slope(int i, int j, int type)
+        {
+            return !ChestBrowser.isKillTileProtect();
+        }
+        public override bool CanPlace(int i, int j, int type)
+        {
+            return !ChestBrowser.isKillTileProtect();
         }
     }
     class ChestBrowserGlobalWall : GlobalWall
     {
         public override void KillWall(int i, int j, int type, ref bool fail)
         {
-            if (!fail && ChestBrowser.instance.chestBrowserTool.visible && Config.isKillWallProtect)
-                fail = true;
+            fail = ChestBrowser.isKillTileProtect();
         }
         public override bool CreateDust(int i, int j, int type, ref int dustType)
         {
-            bool result = true;
-            if (ChestBrowser.instance.chestBrowserTool.visible)
-                result = !Config.isKillWallProtect;
-            return result;
+            return !ChestBrowser.isKillTileProtect();
         }
         public override bool KillSound(int i, int j, int type)
         {
-            bool result = true;
-            if (ChestBrowser.instance.chestBrowserTool.visible)
-                result = !Config.isKillWallProtect;
-            return result;
+            return !ChestBrowser.isKillTileProtect();
+        }
+        public override void PlaceInWorld(int i, int j, int type, Item item)
+        {
         }
     }
 }
