@@ -15,7 +15,6 @@ namespace ChestBrowser
         public const int maxTilesX = 8400;
         public const int maxTilesY = 2400;
 
-
         public const int InfinityRange = int.MaxValue / 32 - 20;
 
         /// <summary>
@@ -110,6 +109,23 @@ namespace ChestBrowser
         public static Texture2D Resize(this Texture2D texture, int width, int height)
         {
             Texture2D result = texture;
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                texture.SaveAsPng(ms, width, height);
+                result = Texture2D.FromStream(texture.GraphicsDevice, ms);
+            }
+            return result;
+        }
+
+        public static Texture2D Resize(this Texture2D texture, int size)
+        {
+            Texture2D result = texture;
+
+            float max = texture.Width < texture.Height ? texture.Height : texture.Width;
+            float scale = size / max;
+            int width = (int)(texture.Width * scale);
+            int height = (int)(texture.Height * scale);
+
             using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
             {
                 texture.SaveAsPng(ms, width, height);

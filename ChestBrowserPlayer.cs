@@ -13,9 +13,7 @@ namespace ChestBrowser
 {
 	public class ChestBrowserPlayer : ModPlayer
 	{
-        private string saveInfoChestBrowserUI;
-        private string saveInfoFilterItemTypeUI;
-
+        private TagCompound chestBrowserData;
 
         public override void ProcessTriggers(TriggersSet triggersSet)
 		{
@@ -25,12 +23,7 @@ namespace ChestBrowser
                 if (ChestBrowser.instance.chestBrowserTool.visible)
                 {
                     ChestBrowserUI.instance.updateNeeded = true;
-
-                    ChestBrowser.instance.filterItemTypeTool.visible = true;
-                    FilterItemTypeUI.instance.updateNeeded = true;
                 }
-                else
-                    ChestBrowser.instance.filterItemTypeTool.visible = false;
             }
         }
 
@@ -38,8 +31,7 @@ namespace ChestBrowser
 		{
             return new TagCompound
             {
-                ["ChestBrowserUI"] = ChestBrowser.instance.chestBrowserTool.uistate.SaveJsonString(),
-                ["FilterItemTypeUI"] = ChestBrowser.instance.filterItemTypeTool.uistate.SaveJsonString(),
+                ["ChestBrowserUI"] = ChestBrowser.instance.chestBrowserTool.uistate.Save(),
             };
         }
 
@@ -47,20 +39,21 @@ namespace ChestBrowser
 		{
             if (tag.ContainsKey("ChestBrowserUI"))
             {
-                saveInfoChestBrowserUI = tag.GetString("ChestBrowserUI");
-            }
-            if (tag.ContainsKey("FilterItemTypeUI"))
-            {
-                saveInfoFilterItemTypeUI = tag.GetString("FilterItemTypeUI");
+                if (tag.Get<object>("ChestBrowserUI").GetType().Equals(typeof(TagCompound)))
+                {
+                    chestBrowserData = tag.Get<TagCompound>("ChestBrowserUI");
+                }
             }
         }
 
         public override void OnEnterWorld(Player player)
         {
-            ChestBrowser.instance.chestBrowserTool.uistate.LoadJsonString(saveInfoChestBrowserUI);
-            ChestBrowser.instance.filterItemTypeTool.uistate.LoadJsonString(saveInfoFilterItemTypeUI);
+            ChestBrowserUI.instance.InitializeUI();
+            if (chestBrowserData != null)
+            {
+                ChestBrowser.instance.chestBrowserTool.uistate.Load(chestBrowserData);
+            }
         }
-
 
         /// <summary>
         /// チェストブラウザーを表示中はタイルレンジを無制限にする

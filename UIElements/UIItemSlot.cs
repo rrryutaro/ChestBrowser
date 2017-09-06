@@ -16,21 +16,27 @@ namespace ChestBrowser
 	{
 		public static Texture2D defaultBackgroundTexture = Main.inventoryBack9Texture;
 		public Texture2D backgroundTexture = defaultBackgroundTexture;
-		private float scale = .75f;
+		public static float scale = 1.0f;
 		public int itemType;
 		public Item item;
         public bool disable;
 
-		public UIItemSlot(Item item, float scale = .75f)
+		public UIItemSlot(Item item)
 		{
-			this.scale = scale;
 			this.item = item;
 			this.itemType = item.type;
 			this.Width.Set(defaultBackgroundTexture.Width * scale, 0f);
 			this.Height.Set(defaultBackgroundTexture.Height * scale, 0f);
 		}
 
-		internal int frameCounter = 0;
+        public override void Recalculate()
+        {
+            this.Width.Set(defaultBackgroundTexture.Width * scale, 0f);
+            this.Height.Set(defaultBackgroundTexture.Height * scale, 0f);
+            base.Recalculate();
+        }
+
+        internal int frameCounter = 0;
 		internal int frameTimer = 0;
 		const int frameDelay = 7;
 		protected override void DrawSelf(SpriteBatch spriteBatch)

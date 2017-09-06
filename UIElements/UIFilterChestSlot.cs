@@ -18,11 +18,11 @@ namespace ChestBrowser.UIElements
         private bool isDresser;
         private int iconIndex;
 
-        public UIFilterChestSlot(bool isDresser, int iconIndex, Item item, float scale = 0.75f) : base(item, scale)
+        public UIFilterChestSlot(bool isDresser, int iconIndex, Item item) : base(item)
 		{
             this.isDresser = isDresser;
             this.iconIndex = iconIndex;
-            disable = !FilterItemTypeUI.isView(isDresser, iconIndex);
+            disable = !ChestBrowserUI.instance.isView(isDresser, iconIndex);
         }
 
 		public override void Click(UIMouseEvent evt)
@@ -33,13 +33,13 @@ namespace ChestBrowser.UIElements
         {
             if (isDresser)
             {
-                FilterItemTypeUI.dresserTypeView[iconIndex] = !FilterItemTypeUI.dresserTypeView[iconIndex];
-                disable = !FilterItemTypeUI.dresserTypeView[iconIndex];
+                ChestBrowserUI.instance.dresserTypeView[iconIndex] = !ChestBrowserUI.instance.dresserTypeView[iconIndex];
+                disable = !ChestBrowserUI.instance.dresserTypeView[iconIndex];
             }
             else
             {
-                FilterItemTypeUI.chestTypeView[iconIndex] = !FilterItemTypeUI.chestTypeView[iconIndex];
-                disable = !FilterItemTypeUI.chestTypeView[iconIndex];
+                ChestBrowserUI.instance.chestTypeView[iconIndex] = !ChestBrowserUI.instance.chestTypeView[iconIndex];
+                disable = !ChestBrowserUI.instance.chestTypeView[iconIndex];
             }
             ChestBrowserUI.instance.updateNeeded = true;
         }
@@ -48,14 +48,15 @@ namespace ChestBrowser.UIElements
 		{
 		}
 
+        public override int CompareTo(object obj)
+        {
+            int result = iconIndex < (obj as UIFilterChestSlot).iconIndex ? -1 : 1;
+            return result;
+        }
+
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             base.DrawSelf(spriteBatch);
-            if (IsMouseHovering)
-            {
-                //ChestBrowser.instance.chestBrowserTool.tooltip = string.IsNullOrEmpty(chest.name) ? $"{item.Name}" : $"{chest.name}";
-            }
         }
-
     }
 }

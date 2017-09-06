@@ -6,4 +6,10 @@ using System.Threading.Tasks;
 
 namespace ChestBrowser
 {
+    class ChestBrowserTool : Tool
+    {
+        public ChestBrowserTool() : base(typeof(ChestBrowserUI))
+        {
+        }
+    }
 }

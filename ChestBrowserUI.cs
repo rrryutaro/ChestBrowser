@@ -8,7 +8,7 @@ using Terraria;
 using Terraria.UI;
 using Terraria.ID;
 using Terraria.GameContent.UI.Elements;
-using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using ChestBrowser.UIElements;
 
 namespace ChestBrowser
@@ -17,102 +17,300 @@ namespace ChestBrowser
 	{
 		static internal ChestBrowserUI instance;
 
-		internal UIDragablePanel mainPanel;
-		internal UIPanel inlaidPanel;
-		internal UIGrid chestGrid;
-        internal UIHoverImageButton closeButton;
-        internal UIImageListButton lineButton;
-        internal UIHoverImageButton filterSettingButton;
+        static internal int menuIconSize = 28;
+        static internal int menuMargin = 4;
+
+        internal UIDragablePanel panelMain;
+        internal UISplitterPanel panelSplitter;
+        internal UIPanel panelFilterChestType;
+        internal UIPanel panelFilterItem;
+        internal UIPanel panelChest;
+        internal UIGrid gridFilterChestType;
+        internal UIGrid gridFilterItem;
+        internal UIGrid gridChest;
+        internal UIHoverImageButton btnClose;
+        internal UIImageListButton btnLine;
+        internal UIImageListButton btnIconSize;
+        internal UIImageListButton btnFilterChestType;
+        internal UIImageListButton btnFilterChestTypeReverse;
+        internal UIImageListButton btnFilterItem;
+        internal UIImageListButton btnFilterChestName;
+
+        internal bool[] chestTypeExist;
+        internal bool[] chestTypeView;
+        internal bool[] dresserTypeExist;
+        internal bool[] dresserTypeView;
+        private List<int> filterItemList;
 
         internal bool updateNeeded;
-        internal string caption = "Chest Browser v0.0.3.0 Chest:??";
-        internal bool isDrawLine = true;
+        internal string caption = $"Chest Browser v{ChestBrowser.instance.Version} Chest:??";
 
+        internal bool isView(Chest chest)
+        {
+            bool result = isView(chest.isDresser(), chest.getIconIndex());
+            result = btnFilterChestTypeReverse.GetValue<bool>()  ? !result : result;
+
+            if (result && 0 < gridFilterItem.Count)
+            {
+                result = chest.item.Any(x => gridFilterItem._items.Cast<UIFilterItemSlot>().Select(y => y.item.netID).Contains(x.netID));
+            }
+
+            if (result && 0 < btnFilterChestName.GetValue<int>())
+            {
+                result = btnFilterChestName.GetValue<int>() == 1 ? !string.IsNullOrEmpty(chest.name) : string.IsNullOrEmpty(chest.name);
+            }
+
+            return result;
+        }
+        internal bool isView(bool isDresser, int iconIndex)
+        {
+            bool result = true;
+        
+            if (isDresser)
+                result = dresserTypeView[iconIndex];
+            else
+                result = chestTypeView[iconIndex];
+        
+            return result;
+        }
 
         public ChestBrowserUI(UserInterface ui) : base(ui)
 		{
 			instance = this;
 		}
 
-		public override void OnInitialize()
-		{
-			mainPanel = new UIDragablePanel(true, true, true);
-            mainPanel.caption = caption;
-            mainPanel.SetPadding(6);
-			mainPanel.Left.Set(400f, 0f);
-			mainPanel.Top.Set(400f, 0f);
-            //mainPanel.Width.Set(415f, 0f);
-            mainPanel.Width.Set(314f, 0f);
-            //mainPanel.MinWidth.Set(415f, 0f);
-            mainPanel.MinWidth.Set(314f, 0f);
-            //mainPanel.MaxWidth.Set(784f, 0f);
-            mainPanel.MaxWidth.Set(1393f, 0f);
-            //mainPanel.Height.Set(350, 0f);
-            mainPanel.Height.Set(116, 0f);
-            //mainPanel.MinHeight.Set(243, 0f);
-            mainPanel.MinHeight.Set(116, 0f);
-            mainPanel.MaxHeight.Set(1000, 0f);
-			Append(mainPanel);
+        public override void OnInitialize()
+        {
+        }
 
+        public void InitializeUI()
+        {
+            RemoveAllChildren();
+            chestTypeExist = new bool[Chest.chestTypeToIcon.Length];
+            chestTypeView = Enumerable.Repeat<bool>(true, Chest.chestTypeToIcon.Length).ToArray();
+            dresserTypeExist = new bool[Chest.dresserTypeToIcon.Length];
+            dresserTypeView = Enumerable.Repeat<bool>(true, Chest.dresserTypeToIcon.Length).ToArray();
+            filterItemList = new List<int>();
+
+            //メインパネル
+            panelMain = new UIDragablePanel(true, true, true);
+            panelMain.caption = caption;
+            panelMain.SetPadding(6);
+			panelMain.Left.Set(400f, 0f);
+			panelMain.Top.Set(400f, 0f);
+            panelMain.Width.Set(314f, 0f);
+            panelMain.MinWidth.Set(314f, 0f);
+            panelMain.MaxWidth.Set(1393f, 0f);
+            panelMain.Height.Set(131f, 0f);
+            panelMain.MinHeight.Set(131f, 0f);
+            panelMain.MaxHeight.Set(1000f, 0f);
+			Append(panelMain);
+
+            //フィルターパネル
+            panelFilterChestType = new UIPanel();
+            panelFilterChestType.SetPadding(6);
+            panelFilterChestType.MinWidth.Set(100, 0);
+            gridFilterChestType = new UIGrid();
+            gridFilterChestType.Width.Set(-20f, 1f);
+            gridFilterChestType.Height.Set(0, 1f);
+            gridFilterChestType.ListPadding = 2f;
+            panelFilterChestType.Append(gridFilterChestType);
+            var filterGridScrollbar = new FixedUIScrollbar(userInterface);
+            filterGridScrollbar.SetView(100f, 1000f);
+            filterGridScrollbar.Height.Set(0, 1f);
+            filterGridScrollbar.Left.Set(-20, 1f);
+            panelFilterChestType.Append(filterGridScrollbar);
+            gridFilterChestType.SetScrollbar(filterGridScrollbar);
+            //アイテムフィルターパネル
+            panelFilterItem = new UIPanel();
+            panelFilterItem.SetPadding(6);
+            panelFilterItem.MinWidth.Set(100, 0);
+            gridFilterItem = new UIGrid();
+            gridFilterItem.Width.Set(-20f, 1f);
+            gridFilterItem.Height.Set(0, 1f);
+            gridFilterItem.ListPadding = 2f;
+            panelFilterItem.Append(gridFilterItem);
+            var itemFilterGridScrollbar = new FixedUIScrollbar(userInterface);
+            itemFilterGridScrollbar.SetView(100f, 1000f);
+            itemFilterGridScrollbar.Height.Set(0, 1f);
+            itemFilterGridScrollbar.Left.Set(-20, 1f);
+            panelFilterItem.Append(itemFilterGridScrollbar);
+            gridFilterItem.SetScrollbar(itemFilterGridScrollbar);
+            //チェストパネル
+            panelChest = new UIPanel();
+            panelChest.SetPadding(6);
+            panelChest.MinWidth.Set(100, 0);
+            gridChest = new UIGrid();
+            gridChest.Width.Set(-20f, 1f);
+            gridChest.Height.Set(0, 1f);
+            gridChest.ListPadding = 2f;
+            panelChest.Append(gridChest);
+            var chestGridScrollbar = new FixedUIScrollbar(userInterface);
+            chestGridScrollbar.SetView(100f, 1000f);
+            chestGridScrollbar.Height.Set(0, 1f);
+            chestGridScrollbar.Left.Set(-20, 1f);
+            panelChest.Append(chestGridScrollbar);
+            gridChest.SetScrollbar(chestGridScrollbar);
+            //スプリッターパネル
+            panelSplitter = new UISplitterPanel(panelFilterChestType, panelChest);
+            panelSplitter.SetPadding(0);
+            panelSplitter.Top.Pixels = menuIconSize + menuMargin * 2;
+            panelSplitter.Width.Set(0, 1f);
+            panelSplitter.Height.Set(-26 - menuIconSize, 1f);
+            panelSplitter.Panel1Visible = false;
+            panelMain.Append(panelSplitter);
+
+            //閉じるボタン
             Texture2D texture = ChestBrowser.instance.GetTexture("UIElements/closeButton");
-            closeButton = new UIHoverImageButton(texture, "Close");
-            closeButton.OnClick += CloseButtonClicked;
-            closeButton.Left.Set(-20f, 1f);
-            //closeButton.Top.Set(6f, 0f);
-            closeButton.Top.Set(3f, 0f);
-            mainPanel.Append(closeButton);
+            btnClose = new UIHoverImageButton(texture, "Close");
+            btnClose.OnClick += (a, b) => ChestBrowser.instance.chestBrowserTool.visible = false;
+            btnClose.Left.Set(-20f, 1f);
+            btnClose.Top.Set(3f, 0f);
+            panelMain.Append(btnClose);
 
-            inlaidPanel = new UIPanel();
-			inlaidPanel.SetPadding(6);
-            //inlaidPanel.Top.Pixels = 60;
-            inlaidPanel.Top.Pixels = 20;
-            inlaidPanel.Width.Set(0, 1f);
-            //inlaidPanel.Height.Set(-60 - 121, 1f);
-            inlaidPanel.Height.Set(0 - 40, 1f);
-            mainPanel.Append(inlaidPanel);
+            //線表示ボタン
+            btnLine = new UIImageListButton(
+                new List<Texture2D>() { Main.inventoryTickOnTexture.Resize(menuIconSize), Main.inventoryTickOffTexture.Resize(menuIconSize) },
+                new List<object>() { true, false },
+                new List<string>() { "Display line", "Hide line" });
+            btnLine.OnClick += (a, b) => btnLine.NextIamge();
+            btnLine.Left.Set(btnClose.Left.Pixels - menuMargin - menuIconSize, 1f);
+            btnLine.Top.Set(3f, 0f);
+            panelMain.Append(btnLine);
 
-            chestGrid = new UIGrid();
-			chestGrid.Width.Set(-20f, 1f); 
-			chestGrid.Height.Set(0, 1f);
-			chestGrid.ListPadding = 2f;
-			inlaidPanel.Append(chestGrid);
+            //アイコンサイズボタン
+            btnIconSize = new UIImageListButton(
+                new List<Texture2D>() {
+                    Main.itemTexture[ItemID.Chest].Resize(menuIconSize),
+                    Main.itemTexture[ItemID.Chest].Resize((int)(menuIconSize * 0.8f)),
+                    Main.itemTexture[ItemID.Chest].Resize((int)(menuIconSize * 0.6f))},
+                new List<object>() { 1.0f, 0.8f, 0.6f },
+                new List<string>() { "Icon size large", "Icon size medium", "Icon size small" });
+            btnIconSize.OnClick += (a, b) =>
+            {
+                btnIconSize.NextIamge();
+                UIItemSlot.scale = btnIconSize.GetValue<float>();
+            };
+            btnIconSize.Left.Set(btnLine.Left.Pixels - menuMargin - menuIconSize, 1f);
+            btnIconSize.Top.Set(3f, 0f);
+            panelMain.Append(btnIconSize);
 
-			var lootItemsScrollbar = new FixedUIScrollbar(userInterface);
-			lootItemsScrollbar.SetView(100f, 1000f);
-			lootItemsScrollbar.Height.Set(0, 1f);
-			lootItemsScrollbar.Left.Set(-20, 1f);
-			inlaidPanel.Append(lootItemsScrollbar);
-			chestGrid.SetScrollbar(lootItemsScrollbar);
+            //フィルターボタン
+            btnFilterChestType = new UIImageListButton(
+                new List<Texture2D>() { Main.itemTexture[ItemID.Chest].Resize(menuIconSize), Main.itemTexture[ItemID.GoldChest].Resize(menuIconSize) },
+                new List<object>() { false, true },
+                new List<string>() { "Hide filter", "Display filter" });
+            btnFilterChestType.OnClick += (a, b) =>
+            {
+                btnFilterChestType.NextIamge();
+                if (btnFilterChestType.GetValue<bool>())
+                {
+                    btnFilterItem.Index = 0;
+                }
+                ChangeSpliterPanel();
+            };
+            btnFilterChestType.Left.Set(menuMargin, 0f);
+            btnFilterChestType.Top.Set(3f, 0f);
+            panelMain.Append(btnFilterChestType);
 
-            lineButton = new UIImageListButton(
-                new List<Texture2D>() { Main.inventoryTickOnTexture, Main.inventoryTickOffTexture },
-                new List<string>() { "Do not display straight lines to chest with clicks", "Display straight line on chest by clicking" });
-            lineButton.OnClick += LineButtonClicked;
-            lineButton.Left.Set(-40f, 1f);
-            lineButton.Top.Set(3f, 0f);
-            mainPanel.Append(lineButton);
+            //リバースボタン
+            btnFilterChestTypeReverse = new UIImageListButton(
+                new List<Texture2D>() {
+                    ChestBrowser.instance.GetTexture("UIElements/reverseButton2").Resize(menuIconSize),
+                    ChestBrowser.instance.GetTexture("UIElements/reverseButton1").Resize(menuIconSize) },
+                new List<object>() { false, true },
+                new List<string>() { "Not filter reverse", "Filter reverse" });
+            btnFilterChestTypeReverse.OnClick += (a, b) =>
+            {
+                btnFilterChestTypeReverse.NextIamge();
+                updateNeeded = true;
+            };
+            btnFilterChestTypeReverse.Left.Set(btnFilterChestType.Left.Pixels + menuIconSize + menuMargin, 0f);
+            btnFilterChestTypeReverse.Top.Set(3f, 0f);
+            panelMain.Append(btnFilterChestTypeReverse);
 
-            filterSettingButton = new UIHoverImageButton(Main.itemTexture[ItemID.Cog].Resize(14, 14), "Filter Setting");
-            filterSettingButton.OnClick += showFilterSettingButtonClicked;
-            filterSettingButton.Left.Set(-60f, 1f);
-            filterSettingButton.Top.Set(3f, 0f);
-            mainPanel.Append(filterSettingButton);
+            //アイテムフィルターボタン
+            btnFilterItem = new UIImageListButton(
+                new List<Texture2D>() { Main.itemTexture[ItemID.Chest].Resize(menuIconSize), Main.itemTexture[ItemID.GoldChest].Resize(menuIconSize) },
+                new List<object>() { false, true },
+                new List<string>() { "Hide item filter", "Display item filter"});
+            btnFilterItem.OnClick += (a, b) =>
+            {
+                btnFilterItem.NextIamge();
+                if (btnFilterItem.GetValue<bool>())
+                {
+                    btnFilterChestType.Index = 0;
+                }
+                ChangeSpliterPanel();
+            };
+            btnFilterItem.Left.Set(btnFilterChestTypeReverse.Left.Pixels + (menuIconSize + menuMargin) * 2, 0f);
+            btnFilterItem.Top.Set(3f, 0f);
+            panelMain.Append(btnFilterItem);
 
+            //名前フィルターボタン
+            btnFilterChestName = new UIImageListButton(
+                new List<Texture2D>() {
+                    Main.itemTexture[ItemID.AlphabetStatueA].Resize(menuIconSize),
+                    Main.itemTexture[ItemID.AlphabetStatueN].Resize(menuIconSize),
+                    Main.itemTexture[ItemID.AlphabetStatueU].Resize(menuIconSize) },
+                new List<object>() { 0, 1, 2 },
+                new List<string>() { "Named chest filter: All", "Named chest filter: Named", "Named chest filter: No names" });
+            btnFilterChestName.OnClick += (a, b) =>
+            {
+                btnFilterChestName.NextIamge();
+                updateNeeded = true;
+            };
+            btnFilterChestName.Left.Set(btnFilterItem.Left.Pixels + (menuIconSize + menuMargin) * 2, 0f);
+            btnFilterChestName.Top.Set(3f, 0f);
+            panelMain.Append(btnFilterChestName);
         }
 
-        private void CloseButtonClicked(UIMouseEvent evt, UIElement listeningElement)
-		{
-            ChestBrowser.instance.chestBrowserTool.visible = false;
-        }
-        private void LineButtonClicked(UIMouseEvent evt, UIElement listeningElement)
+        private void ChangeSpliterPanel()
         {
-            lineButton.Index = lineButton.Index == 0 ? 1 : 0;
+            if (btnFilterChestType.GetValue<bool>())
+            {
+                panelSplitter.Panel1Visible = true;
+                panelSplitter.SetPanel1(panelFilterChestType);
+            }
+            else if (btnFilterItem.GetValue<bool>())
+            {
+                panelSplitter.Panel1Visible = true;
+                panelSplitter.SetPanel1(panelFilterItem);
+            }
+            else
+            {
+                panelSplitter.Panel1Visible = false;
+            }
+            updateNeeded = true;
         }
-        private void showFilterSettingButtonClicked(UIMouseEvent evt, UIElement listeningElement)
+
+        public void AddFilterItem(int netID)
         {
-            ChestBrowser.instance.filterItemTypeTool.visible = !ChestBrowser.instance.filterItemTypeTool.visible;
-            if (ChestBrowser.instance.filterItemTypeTool.visible)
-                FilterItemTypeUI.instance.updateNeeded = true;
+            if (!filterItemList.Contains(netID))
+            {
+                filterItemList.Add(netID);
+                updateNeeded = true;
+            }
+        }
+        public void RemoveFilterItem(int netID)
+        {
+            if (filterItemList.Remove(netID))
+            {
+                updateNeeded = true;
+            }
+        }
+
+        private void Clear()
+        {
+            gridFilterItem.Clear();
+            gridFilterChestType.Clear();
+            gridChest.Clear();
+            panelMain.DragTargetClear();
+
+            chestTypeExist = new bool[Chest.chestTypeToIcon.Length];
+            dresserTypeExist = new bool[Chest.dresserTypeToIcon.Length];
+
+            panelSplitter.Recalculate();
         }
 
         internal void UpdateGrid()
@@ -120,25 +318,61 @@ namespace ChestBrowser
 			if (!updateNeeded) { return; }
 			updateNeeded = false;
 
-            chestGrid.Clear();
-            mainPanel.DragTargetClear();
-            mainPanel.AddDragTarget(inlaidPanel);
-            mainPanel.AddDragTarget(chestGrid);
+            Clear();
 
-            FilterItemTypeUI.Clear();
+            foreach (var netID in filterItemList)
+            {
+                var item = new Item();
+                item.SetDefaults(netID);
+
+                var box = new UIFilterItemSlot(item);
+                gridFilterItem._items.Add(box);
+                gridFilterItem._innerList.Append(box);
+            }
+            gridFilterItem.UpdateOrder();
+            gridFilterItem._innerList.Recalculate();
 
             var rect = ChestBrowserUtils.GetSearchRangeRectangle();
-            foreach (var chest in Main.chest.Where(x => x != null && (Config.isInfinityRange ? true : rect.Contains(x.x, x.y)) && FilterItemTypeUI.isView(x) ))
+            foreach (var chest in Main.chest.Where(x => x != null && (Config.isInfinityRange ? true : rect.Contains(x.x, x.y))))
             {
-                var box = new UIChestSlot(chest, 1f);
-                chestGrid._items.Add(box);
-                chestGrid._innerList.Append(box);
-                mainPanel.AddDragTarget(box);
-            }
-            chestGrid.UpdateOrder();
-			chestGrid._innerList.Recalculate();
+                if (panelSplitter.Panel1Visible && btnFilterChestType.GetValue<bool>())
+                {
+                    int itemType = -1;
+                    bool isDresser = chest.isDresser();
+                    int iconIndex = chest.getIconIndex();
+                    if (isDresser && !dresserTypeExist[iconIndex])
+                    {
+                        dresserTypeExist[iconIndex] = true;
+                        itemType = Chest.dresserTypeToIcon[iconIndex];
+                    }
+                    else if (!isDresser && !chestTypeExist[iconIndex])
+                    {
+                        chestTypeExist[iconIndex] = true;
+                        itemType = Chest.chestTypeToIcon[iconIndex];
+                    }
+                    if (0 <= itemType)
+                    {
+                        var box = new UIFilterChestSlot(isDresser, iconIndex, chest.ToItem());
+                        gridFilterChestType._items.Add(box);
+                        gridFilterChestType._innerList.Append(box);
+                        panelMain.AddDragTarget(box);
+                    }
+                }
 
-            mainPanel.caption = caption.Replace("??", $"{chestGrid.Count}");
+                if (isView(chest))
+                {
+                    var box = new UIChestSlot(chest);
+                    gridChest._items.Add(box);
+                    gridChest._innerList.Append(box);
+                    panelMain.AddDragTarget(box);
+                }
+            }
+            gridFilterChestType.UpdateOrder();
+            gridFilterChestType._innerList.Recalculate();
+            gridChest.UpdateOrder();
+            gridChest._innerList.Recalculate();
+
+            panelMain.caption = caption.Replace("??", $"{gridChest.Count}");
         }
 
 		public override void Update(GameTime gameTime)
@@ -147,22 +381,12 @@ namespace ChestBrowser
 			UpdateGrid();
 		}
 
-        public override string SaveJsonString()
-        {
-            string result = mainPanel.SavePositionJsonString();
-            return result;
-        }
-        public override void LoadJsonString(string jsonString)
-        {
-            mainPanel.LoadPositionJsonString(jsonString);
-        }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
 
             Player player = Main.LocalPlayer;
-            if (lineButton.Index == 0 && 0 <= player.chest)
+            if (btnLine.GetValue<bool>() && 0 <= player.chest)
             {
                 Utils.DrawLine(spriteBatch, player.Center, Main.chest[player.chest].getCenter(), Color.Red, Color.Red, 1);
             }
@@ -170,12 +394,18 @@ namespace ChestBrowser
 
         public override void MouseDown(UIMouseEvent evt)
         {
+            if (btnFilterItem.GetValue<bool>() && evt.Target == gridFilterItem._innerList &&(Main.mouseItem != null))
+            {
+                AddFilterItem(Main.mouseItem.netID);
+            }
+
             if (!Config.isCheatMode && !this.ContainsPoint(evt.MousePosition))
             {
                 ChestBrowser.instance.chestBrowserTool.visible = false;
             }
             base.MouseDown(evt);
         }
+
         public override void RightMouseDown(UIMouseEvent evt)
         {
             if (!Config.isCheatMode && !this.ContainsPoint(evt.MousePosition))
@@ -183,6 +413,77 @@ namespace ChestBrowser
                 ChestBrowser.instance.chestBrowserTool.visible = false;
             }
             base.RightMouseDown(evt);
+        }
+
+        public override TagCompound Save()
+        {
+            TagCompound result = base.Save();
+
+            result.Add("position", panelMain.SavePositionJsonString());
+            result.Add("SplitterBarLeft", panelSplitter.GetSplitterBarLeft());
+            result.Add("chestTypeView", chestTypeView.ToList());
+            result.Add("dresserTypeView", dresserTypeView.ToList());
+            result.Add("filterItemList", filterItemList);
+
+            result.Add("btnLine", btnLine.Index);
+            result.Add("btnIconSize", btnIconSize.Index);
+            result.Add("btnFilterChestType", btnFilterChestType.Index);
+            result.Add("btnFilterChestTypeReverse", btnFilterChestTypeReverse.Index);
+            result.Add("btnFilterItem", btnFilterItem.Index);
+            result.Add("btnFilterChestName", btnFilterChestName.Index);
+
+            return result;
+        }
+
+        public override void Load(TagCompound tag)
+        {
+            base.Load(tag);
+            if (tag.ContainsKey("position"))
+            {
+                panelMain.LoadPositionJsonString(tag.GetString("position"));
+            }
+            if (tag.ContainsKey("SplitterBarLeft"))
+            {
+                panelSplitter.SetSplitterBarLeft(tag.GetFloat("SplitterBarLeft"));
+            }
+            if (tag.ContainsKey("chestTypeView"))
+            {
+                chestTypeView = tag.GetList<bool>("chestTypeView").ToArray();
+            }
+            if (tag.ContainsKey("dresserTypeView"))
+            {
+                dresserTypeView = tag.GetList<bool>("dresserTypeView").ToArray();
+            }
+            if (tag.ContainsKey("filterItemList"))
+            {
+                tag.GetList<int>("filterItemList").ToList().ForEach(x => AddFilterItem(x));
+            }
+            if (tag.ContainsKey("btnLine"))
+            {
+                btnLine.Index = tag.GetInt("btnLine");
+            }
+            if (tag.ContainsKey("btnIconSize"))
+            {
+                btnIconSize.Index = tag.GetInt("btnIconSize");
+                UIItemSlot.scale = btnIconSize.GetValue<float>();
+            }
+            if (tag.ContainsKey("btnFilterChestType"))
+            {
+                btnFilterChestType.Index = tag.GetInt("btnFilterChestType");
+            }
+            if (tag.ContainsKey("btnFilterChestTypeReverse"))
+            {
+                btnFilterChestTypeReverse.Index = tag.GetInt("btnFilterChestTypeReverse");
+            }
+            if (tag.ContainsKey("btnFilterItem"))
+            {
+                btnFilterItem.Index = tag.GetInt("btnFilterItem");
+            }
+            if (tag.ContainsKey("btnFilterChestName"))
+            {
+                btnFilterChestName.Index = tag.GetInt("btnFilterChestName");
+            }
+            ChangeSpliterPanel();
         }
     }
 }

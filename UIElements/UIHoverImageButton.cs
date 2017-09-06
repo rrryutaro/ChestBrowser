@@ -18,7 +18,7 @@ namespace ChestBrowser
 			base.DrawSelf(spriteBatch);
 			if (IsMouseHovering)
 			{
-                ChestBrowser.instance.chestBrowserTool.tooltip = hoverText;
+                Tool.tooltip = hoverText;
 			}
 		}
 	}

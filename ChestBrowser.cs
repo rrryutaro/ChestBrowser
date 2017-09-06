@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Terraria;
 using Terraria.UI;
@@ -12,7 +12,6 @@ namespace ChestBrowser
         internal static ChestBrowser instance;
         internal ModHotKey HotKey;
         internal ChestBrowserTool chestBrowserTool;
-        internal FilterItemTypeTool filterItemTypeTool;
 
         public bool LoadedFKTModSettings = false;
 
@@ -27,7 +26,7 @@ namespace ChestBrowser
 				AutoloadGores = true,
 				AutoloadSounds = true
 			};
-		}
+        }
 
         public override void Load()
         {
@@ -36,7 +35,6 @@ namespace ChestBrowser
             if (!Main.dedServ)
             {
                 chestBrowserTool = new ChestBrowserTool();
-                filterItemTypeTool = new FilterItemTypeTool();
 
                 Config.LoadConfig();
                 LoadedFKTModSettings = ModLoader.GetMod("FKTModSettings") != null;
@@ -68,9 +66,7 @@ namespace ChestBrowser
                             lastSeenScreenHeight = Main.screenHeight;
                         }
                         chestBrowserTool.UIUpdate();
-                        filterItemTypeTool.UIUpdate();
                         chestBrowserTool.UIDraw();
-                        filterItemTypeTool.UIDraw();
 
                         return true;
                     },
@@ -86,7 +82,6 @@ namespace ChestBrowser
                     delegate
                     {
                         chestBrowserTool.TooltipDraw();
-                        filterItemTypeTool.TooltipDraw();
                         return true;
                     },
                     InterfaceScaleType.UI)
@@ -193,9 +188,6 @@ namespace ChestBrowser
         public override bool KillSound(int i, int j, int type)
         {
             return !ChestBrowser.isKillTileProtect();
-        }
-        public override void PlaceInWorld(int i, int j, int type, Item item)
-        {
         }
     }
 }

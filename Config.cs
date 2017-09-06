@@ -57,7 +57,7 @@ namespace ChestBrowser
         public static bool isInfinityRange = false;
         public static int searchRangeX = Main.screenWidth / ChestBrowserUtils.tileSize;
         public static int searchRangeY = Main.screenHeight / ChestBrowserUtils.tileSize;
-        //Versuin: 2
+        //Version: 2
         public static bool isKillTileProtect = true;
         public static bool isKillWallProtect = true;
     }

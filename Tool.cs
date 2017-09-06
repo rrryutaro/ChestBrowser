@@ -11,7 +11,7 @@ namespace ChestBrowser
 		internal bool visible;
 		internal UserInterface userInterface;
 		internal UIModState uistate;
-        internal string tooltip;
+        internal static string tooltip;
 
 		public Tool(Type uistateType)
 		{
@@ -77,20 +77,4 @@ namespace ChestBrowser
 			}
 		}
 	}
-
-    class ChestBrowserTool : Tool
-    {
-        public ChestBrowserTool() : base(typeof(ChestBrowserUI))
-        {
-
-        }
-    }
-
-    class FilterItemTypeTool : Tool
-    {
-        public FilterItemTypeTool() : base(typeof(FilterItemTypeUI))
-        {
-
-        }
-    }
 }

@@ -17,7 +17,7 @@ namespace ChestBrowser.UIElements
         public Chest chest;
         private float distance;
 
-        public UIChestSlot(Chest chest, float scale = 0.75f) : base(chest.ToItem(), scale)
+        public UIChestSlot(Chest chest) : base(chest.ToItem())
 		{
             this.chest = chest;
             SetDistance();
@@ -69,7 +69,7 @@ namespace ChestBrowser.UIElements
             base.DrawSelf(spriteBatch);
             if (IsMouseHovering)
             {
-                ChestBrowser.instance.chestBrowserTool.tooltip = string.IsNullOrEmpty(chest.name) ? $"{item.Name}" : $"{chest.name}";
+                Tool.tooltip = string.IsNullOrEmpty(chest.name) ? $"{item.Name}" : $"{chest.name}";
             }
         }
 
