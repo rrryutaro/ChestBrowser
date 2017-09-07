@@ -419,18 +419,21 @@ namespace ChestBrowser
         {
             TagCompound result = base.Save();
 
-            result.Add("position", panelMain.SavePositionJsonString());
-            result.Add("SplitterBarLeft", panelSplitter.GetSplitterBarLeft());
-            result.Add("chestTypeView", chestTypeView.ToList());
-            result.Add("dresserTypeView", dresserTypeView.ToList());
-            result.Add("filterItemList", filterItemList);
+            if (panelMain != null)
+            {
+                result.Add("position", panelMain.SavePositionJsonString());
+                result.Add("SplitterBarLeft", panelSplitter.GetSplitterBarLeft());
+                result.Add("chestTypeView", chestTypeView.ToList());
+                result.Add("dresserTypeView", dresserTypeView.ToList());
+                result.Add("filterItemList", filterItemList);
 
-            result.Add("btnLine", btnLine.Index);
-            result.Add("btnIconSize", btnIconSize.Index);
-            result.Add("btnFilterChestType", btnFilterChestType.Index);
-            result.Add("btnFilterChestTypeReverse", btnFilterChestTypeReverse.Index);
-            result.Add("btnFilterItem", btnFilterItem.Index);
-            result.Add("btnFilterChestName", btnFilterChestName.Index);
+                result.Add("btnLine", btnLine.Index);
+                result.Add("btnIconSize", btnIconSize.Index);
+                result.Add("btnFilterChestType", btnFilterChestType.Index);
+                result.Add("btnFilterChestTypeReverse", btnFilterChestTypeReverse.Index);
+                result.Add("btnFilterItem", btnFilterItem.Index);
+                result.Add("btnFilterChestName", btnFilterChestName.Index);
+            }
 
             return result;
         }

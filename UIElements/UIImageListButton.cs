@@ -57,7 +57,7 @@ namespace ChestBrowser.UIElements
             spriteBatch.Draw(this._textures[Index], GetCenterPosition(GetDimensions().ToRectangle(), this._textures[Index]), Color.White * (base.IsMouseHovering ? this._visibilityActive : this._visibilityInactive));
             if (IsMouseHovering)
             {
-                Tool.tooltip = GetNextTooltip();
+                Tool.tooltip = $"Current:{_hoverTexts[Index]}{Environment.NewLine}Next:{GetNextTooltip()}";
             }
         }
 
