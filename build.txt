@@ -1,5 +1,5 @@
 author = R
-version = 0.1.0.0
+version = 0.1.0.2
 displayName = Chest Browser
 homepage = https://forums.terraria.org/index.php?threads/chest-browser.60952/
 weakReferences = FKTModSettings

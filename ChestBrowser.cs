@@ -133,12 +133,20 @@ namespace ChestBrowser
 
         public static bool isKillTileProtect()
         {
-            bool result = ChestBrowser.instance.chestBrowserTool.visible && Config.isKillTileProtect;
+			bool result = true;
+			if (!Main.dedServ)
+			{
+				result = ChestBrowser.instance.chestBrowserTool.visible && Config.isKillTileProtect;
+			}
             return result;
         }
         public static bool isKillWallProtect()
         {
-            bool result = ChestBrowser.instance.chestBrowserTool.visible && Config.isKillWallProtect;
+			bool result = true;
+			if (!Main.dedServ)
+			{
+				result = ChestBrowser.instance.chestBrowserTool.visible && Config.isKillWallProtect;
+			}
             return result;
         }
     }
