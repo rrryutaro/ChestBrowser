@@ -1,24 +1,21 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.UI;
 using Terraria.GameContent.UI.Elements;
-using Terraria.ModLoader;
 using ChestBrowser.UIElements;
+using Terraria.ModLoader;
 
 namespace ChestBrowser
 {
-	class FilterItemTypeUI : UIModState
-	{
-		static internal FilterItemTypeUI instance;
+    class FilterItemTypeUI : UIModState
+    {
+        static internal FilterItemTypeUI instance;
 
-		internal UIDragablePanel mainPanel;
-		internal UIPanel inlaidPanel;
-		internal UIGrid chestGrid;
+        internal UIDragablePanel mainPanel;
+        internal UIPanel inlaidPanel;
+        internal UIGrid chestGrid;
         internal UIHoverImageButton closeButton;
 
         internal bool updateNeeded;
@@ -52,24 +49,24 @@ namespace ChestBrowser
         }
 
         public FilterItemTypeUI(UserInterface ui) : base(ui)
-		{
-			instance = this;
+        {
+            instance = this;
         }
 
         public override void OnInitialize()
-		{
-			mainPanel = new UIDragablePanel(true, true, true);
+        {
+            mainPanel = new UIDragablePanel(true, true, true);
             mainPanel.caption = caption;
             mainPanel.SetPadding(6);
-			mainPanel.Left.Set(714f, 0f);
-			mainPanel.Top.Set(400f, 0f);
+            mainPanel.Left.Set(714f, 0f);
+            mainPanel.Top.Set(400f, 0f);
             mainPanel.Width.Set(314f, 0f);
             mainPanel.MinWidth.Set(314f, 0f);
             mainPanel.MaxWidth.Set(1393f, 0f);
             mainPanel.Height.Set(116, 0f);
             mainPanel.MinHeight.Set(116, 0f);
             mainPanel.MaxHeight.Set(1000, 0f);
-			Append(mainPanel);
+            Append(mainPanel);
 
             Texture2D texture = ChestBrowser.instance.GetTexture("UIElements/closeButton");
             closeButton = new UIHoverImageButton(texture, "Close");
@@ -79,29 +76,28 @@ namespace ChestBrowser
             mainPanel.Append(closeButton);
 
             inlaidPanel = new UIPanel();
-			inlaidPanel.SetPadding(6);
+            inlaidPanel.SetPadding(6);
             inlaidPanel.Top.Pixels = 20;
             inlaidPanel.Width.Set(0, 1f);
             inlaidPanel.Height.Set(0 - 40, 1f);
             mainPanel.Append(inlaidPanel);
 
             chestGrid = new UIGrid();
-			chestGrid.Width.Set(-20f, 1f); 
-			chestGrid.Height.Set(0, 1f);
-			chestGrid.ListPadding = 2f;
-			inlaidPanel.Append(chestGrid);
+            chestGrid.Width.Set(-20f, 1f);
+            chestGrid.Height.Set(0, 1f);
+            chestGrid.ListPadding = 2f;
+            inlaidPanel.Append(chestGrid);
 
-			var lootItemsScrollbar = new FixedUIScrollbar(userInterface);
-			lootItemsScrollbar.SetView(100f, 1000f);
-			lootItemsScrollbar.Height.Set(0, 1f);
-			lootItemsScrollbar.Left.Set(-20, 1f);
-			inlaidPanel.Append(lootItemsScrollbar);
-			chestGrid.SetScrollbar(lootItemsScrollbar);
+            var lootItemsScrollbar = new FixedUIScrollbar(userInterface);
+            lootItemsScrollbar.SetView(100f, 1000f);
+            lootItemsScrollbar.Height.Set(0, 1f);
+            lootItemsScrollbar.Left.Set(-20, 1f);
+            inlaidPanel.Append(lootItemsScrollbar);
+            chestGrid.SetScrollbar(lootItemsScrollbar);
         }
 
         private void CloseButtonClicked(UIMouseEvent evt, UIElement listeningElement)
-		{
-            ChestBrowser.instance.filterItemTypeTool.visible = false;
+        {
         }
 
         internal void UpdateGrid()
@@ -117,7 +113,7 @@ namespace ChestBrowser
             Clear();
 
             var rect = ChestBrowserUtils.GetSearchRangeRectangle();
-            foreach (var chest in Main.chest.Where(x => x != null && (Config.isInfinityRange ? true : rect.Contains(x.x, x.y)) ))
+            foreach (var chest in Main.chest.Where(x => x != null && (ModContent.GetInstance<ChestBrowserConfig>().isInfinityRange ? true : rect.Contains(x.x, x.y))))
             {
                 int itemType = -1;
                 bool isDresser = chest.isDresser();
@@ -134,7 +130,7 @@ namespace ChestBrowser
                 }
                 if (0 <= itemType)
                 {
-                    var box = new UIFilterChestSlot(isDresser, iconIndex, chest.ToItem(), 1f);
+                    var box = new UIFilterChestSlot(isDresser, iconIndex, chest.ToItem());
                     chestGrid._items.Add(box);
                     chestGrid._innerList.Append(box);
                     mainPanel.AddDragTarget(box);
@@ -147,8 +143,8 @@ namespace ChestBrowser
         }
 
         public override void Update(GameTime gameTime)
-		{
-			base.Update(gameTime);
+        {
+            base.Update(gameTime);
             UpdateGrid();
         }
 
@@ -158,31 +154,6 @@ namespace ChestBrowser
             public string chestTypeView;
             public string dresserTypeView;
         }
-        public override string SaveJsonString()
-        {
-            string result = string.Empty;
-
-            var info = new SaveInfo();
-            info.position = mainPanel.SavePositionJsonString();
-            info.chestTypeView = string.Join(",", chestTypeView.Select(x => x ? 1 : 0));
-            info.dresserTypeView = string.Join(",", dresserTypeView.Select(x => x ? 1 : 0));
-            result = Newtonsoft.Json.JsonConvert.SerializeObject(info);
-            return result;
-        }
-        public override void LoadJsonString(string jsonString)
-        {
-            if (!string.IsNullOrEmpty(jsonString))
-            {
-                var info = Newtonsoft.Json.JsonConvert.DeserializeObject<SaveInfo>(jsonString);
-                if (info.position != null)
-                    mainPanel.LoadPositionJsonString(info.position);
-                if (info.chestTypeView != null)
-                    chestTypeView = info.chestTypeView.Split(',').Select(x => x.Equals("1") ? true : false).ToArray<bool>();
-                if (info.dresserTypeView != null)
-                    dresserTypeView = info.dresserTypeView.Split(',').Select(x => x.Equals("1") ? true : false).ToArray<bool>();
-            }
-        }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);

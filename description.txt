@@ -1,3 +1,5 @@
+* This explanation is translated from Japanese by Google Translate.
+
 Chest Browser:
 The Chest Browser browses the chest of the seting range.
 Right click on any Chest to open chest.
@@ -7,8 +9,8 @@ Click on the item and click on the item filter, the target item is registered, a
 The name filter filters what is named chest.
 The display icon size can be switched between large, medium, and small with the icon size setting.
 The line connecting the player and the chest can be switched between display and non-display.
-Modification of setting can be done with Mod Settings Configurator.
 
+To change the settings, use the standard configuration of tModLoader.
 By default the cheat function is turned off.
 Teleporting and unconditional unlocking function only when the cheat function is ON.
 
@@ -17,7 +19,7 @@ The default is to the screen.
 While the Chest Browser is show, since the operation range is expanded, a protect function to prevent erroneous operation etc. is provided.
 
 *** Acknowledgment ***
-Most of this Mod's code is based on jopojelly's Recipe Browser.
+Most of this Mod's UI code is based on jopojelly's Recipe Browser.
 I am grateful to Mr. jopojelly for publishing a great code.
-In addition, Mod Settings uses Mod Settings Configurator.
-I am grateful to Mr. Flashkirby99 for making the setting of Mod easy.
+Also, some code uses HERO's Mod code.
+Therefore, this mod inherits the license of HERO's mod.

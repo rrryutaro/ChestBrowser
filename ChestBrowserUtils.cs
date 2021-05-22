@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.ModLoader;
 
 namespace ChestBrowser
 {
@@ -36,12 +32,13 @@ namespace ChestBrowser
 
         public static Rectangle GetSearchRangeRectangle()
         {
+            var config = ModContent.GetInstance<ChestBrowserConfig>();
             Rectangle result = new Rectangle();
             Point playerCenter = Main.LocalPlayer.Center.ToTileCoordinates();
-            result.X = playerCenter.X - Config.searchRangeX / 2;
-            result.Y = playerCenter.Y - Config.searchRangeY / 2;
-            result.Width = Config.searchRangeX;
-            result.Height = Config.searchRangeY;
+            result.X = playerCenter.X - config.searchRange.X / 2;
+            result.Y = playerCenter.Y - config.searchRange.Y / 2;
+            result.Width = config.searchRange.X;
+            result.Height = config.searchRange.Y;
             return result;
         }
 

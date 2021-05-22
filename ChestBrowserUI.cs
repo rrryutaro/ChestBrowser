@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -10,12 +8,13 @@ using Terraria.ID;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader.IO;
 using ChestBrowser.UIElements;
+using Terraria.ModLoader;
 
 namespace ChestBrowser
 {
-	class ChestBrowserUI : UIModState
-	{
-		static internal ChestBrowserUI instance;
+    class ChestBrowserUI : UIModState
+    {
+        static internal ChestBrowserUI instance;
 
         static internal int menuIconSize = 28;
         static internal int menuMargin = 4;
@@ -48,7 +47,7 @@ namespace ChestBrowser
         internal bool isView(Chest chest)
         {
             bool result = isView(chest.isDresser(), chest.getIconIndex());
-            result = btnFilterChestTypeReverse.GetValue<bool>()  ? !result : result;
+            result = btnFilterChestTypeReverse.GetValue<bool>() ? !result : result;
 
             if (result && 0 < gridFilterItem.Count)
             {
@@ -65,19 +64,19 @@ namespace ChestBrowser
         internal bool isView(bool isDresser, int iconIndex)
         {
             bool result = true;
-        
+
             if (isDresser)
                 result = dresserTypeView[iconIndex];
             else
                 result = chestTypeView[iconIndex];
-        
+
             return result;
         }
 
         public ChestBrowserUI(UserInterface ui) : base(ui)
-		{
-			instance = this;
-		}
+        {
+            instance = this;
+        }
 
         public override void OnInitialize()
         {
@@ -96,15 +95,15 @@ namespace ChestBrowser
             panelMain = new UIDragablePanel(true, true, true);
             panelMain.caption = caption;
             panelMain.SetPadding(6);
-			panelMain.Left.Set(400f, 0f);
-			panelMain.Top.Set(400f, 0f);
+            panelMain.Left.Set(400f, 0f);
+            panelMain.Top.Set(400f, 0f);
             panelMain.Width.Set(314f, 0f);
             panelMain.MinWidth.Set(314f, 0f);
             panelMain.MaxWidth.Set(1393f, 0f);
             panelMain.Height.Set(131f, 0f);
             panelMain.MinHeight.Set(131f, 0f);
             panelMain.MaxHeight.Set(1000f, 0f);
-			Append(panelMain);
+            Append(panelMain);
 
             //フィルターパネル
             panelFilterChestType = new UIPanel();
@@ -233,7 +232,7 @@ namespace ChestBrowser
             btnFilterItem = new UIImageListButton(
                 new List<Texture2D>() { Main.itemTexture[ItemID.Chest].Resize(menuIconSize), Main.itemTexture[ItemID.GoldChest].Resize(menuIconSize) },
                 new List<object>() { false, true },
-                new List<string>() { "Hide item filter", "Display item filter"});
+                new List<string>() { "Hide item filter", "Display item filter" });
             btnFilterItem.OnClick += (a, b) =>
             {
                 btnFilterItem.NextIamge();
@@ -314,9 +313,9 @@ namespace ChestBrowser
         }
 
         internal void UpdateGrid()
-		{
-			if (!updateNeeded) { return; }
-			updateNeeded = false;
+        {
+            if (!updateNeeded) { return; }
+            updateNeeded = false;
 
             Clear();
 
@@ -333,7 +332,7 @@ namespace ChestBrowser
             gridFilterItem._innerList.Recalculate();
 
             var rect = ChestBrowserUtils.GetSearchRangeRectangle();
-            foreach (var chest in Main.chest.Where(x => x != null && (Config.isInfinityRange ? true : rect.Contains(x.x, x.y))))
+            foreach (var chest in Main.chest.Where(x => x != null && (ModContent.GetInstance<ChestBrowserConfig>().isInfinityRange ? true : rect.Contains(x.x, x.y))))
             {
                 if (panelSplitter.Panel1Visible && btnFilterChestType.GetValue<bool>())
                 {
@@ -375,11 +374,11 @@ namespace ChestBrowser
             panelMain.caption = caption.Replace("??", $"{gridChest.Count}");
         }
 
-		public override void Update(GameTime gameTime)
-		{
-			base.Update(gameTime);
-			UpdateGrid();
-		}
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+            UpdateGrid();
+        }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
@@ -394,12 +393,12 @@ namespace ChestBrowser
 
         public override void MouseDown(UIMouseEvent evt)
         {
-            if (btnFilterItem.GetValue<bool>() && evt.Target == gridFilterItem._innerList &&(Main.mouseItem != null))
+            if (btnFilterItem.GetValue<bool>() && evt.Target == gridFilterItem._innerList && (Main.mouseItem != null))
             {
                 AddFilterItem(Main.mouseItem.netID);
             }
 
-            if (!Config.isCheatMode && !this.ContainsPoint(evt.MousePosition))
+            if (!ModContent.GetInstance<ChestBrowserConfig>().isCheatMode && !this.ContainsPoint(evt.MousePosition))
             {
                 ChestBrowser.instance.chestBrowserTool.visible = false;
             }
@@ -408,7 +407,7 @@ namespace ChestBrowser
 
         public override void RightMouseDown(UIMouseEvent evt)
         {
-            if (!Config.isCheatMode && !this.ContainsPoint(evt.MousePosition))
+            if (!ModContent.GetInstance<ChestBrowserConfig>().isCheatMode && !this.ContainsPoint(evt.MousePosition))
             {
                 ChestBrowser.instance.chestBrowserTool.visible = false;
             }

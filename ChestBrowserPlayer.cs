@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework.Graphics;
-using Terraria;
+﻿using Terraria;
 using Terraria.GameInput;
-using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using Terraria.DataStructures;
 
 namespace ChestBrowser
 {
-	public class ChestBrowserPlayer : ModPlayer
-	{
+    public class ChestBrowserPlayer : ModPlayer
+    {
         private TagCompound chestBrowserData;
 
         public override void ProcessTriggers(TriggersSet triggersSet)
-		{
-			if (ChestBrowser.instance.HotKey.JustPressed)
-			{
+        {
+            if (ChestBrowser.instance.HotKey.JustPressed)
+            {
                 ChestBrowser.instance.chestBrowserTool.visible = !ChestBrowser.instance.chestBrowserTool.visible;
                 if (ChestBrowser.instance.chestBrowserTool.visible)
                 {
@@ -27,16 +21,16 @@ namespace ChestBrowser
             }
         }
 
-		public override TagCompound Save()
-		{
+        public override TagCompound Save()
+        {
             return new TagCompound
             {
                 ["ChestBrowserUI"] = ChestBrowser.instance.chestBrowserTool.uistate.Save(),
             };
         }
 
-		public override void Load(TagCompound tag)
-		{
+        public override void Load(TagCompound tag)
+        {
             if (tag.ContainsKey("ChestBrowserUI"))
             {
                 if (tag.Get<object>("ChestBrowserUI").GetType().Equals(typeof(TagCompound)))
@@ -67,8 +61,9 @@ namespace ChestBrowser
             {
                 if (ChestBrowser.instance.chestBrowserTool.visible)
                 {
-                    Player.tileRangeX = Config.isInfinityRange ? ChestBrowserUtils.InfinityRange : Config.searchRangeX / 2;
-                    Player.tileRangeY = Config.isInfinityRange ? ChestBrowserUtils.InfinityRange : Config.searchRangeY / 2;
+                    var config = ModContent.GetInstance<ChestBrowserConfig>();
+                    Player.tileRangeX = config.isInfinityRange ? ChestBrowserUtils.InfinityRange : config.searchRange.X / 2;
+                    Player.tileRangeY = config.isInfinityRange ? ChestBrowserUtils.InfinityRange : config.searchRange.Y / 2;
                 }
             }
         }

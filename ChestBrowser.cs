@@ -1,14 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.IO;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.UI;
 using Terraria.ModLoader;
-using FKTModSettings;
 
 namespace ChestBrowser
 {
-	class ChestBrowser : Mod
-	{
+    class ChestBrowser : Mod
+    {
         internal static ChestBrowser instance;
         internal ModHotKey HotKey;
         internal ChestBrowserTool chestBrowserTool;
@@ -19,33 +18,29 @@ namespace ChestBrowser
         int lastSeenScreenHeight;
 
         public ChestBrowser()
-		{
-			Properties = new ModProperties()
-			{
-				Autoload = true,
-				AutoloadGores = true,
-				AutoloadSounds = true
-			};
+        {
+            Properties = new ModProperties()
+            {
+                Autoload = true,
+                AutoloadGores = true,
+                AutoloadSounds = true
+            };
         }
 
         public override void Load()
         {
+            // 旧設定ファイルの削除
+            var oldConfigPath = Path.Combine(Main.SavePath, "Mod Configs", "ChestBrowser.json");
+            if (File.Exists(oldConfigPath))
+            {
+                File.Delete(oldConfigPath);
+            }
+
             instance = this;
             HotKey = RegisterHotKey("Toggle Chest Browser", "U");
             if (!Main.dedServ)
             {
                 chestBrowserTool = new ChestBrowserTool();
-
-                Config.LoadConfig();
-                LoadedFKTModSettings = ModLoader.GetMod("FKTModSettings") != null;
-                try
-                {
-                    if (LoadedFKTModSettings)
-                    {
-                        LoadModSettings();
-                    }
-                }
-                catch { }
             }
         }
 
@@ -89,64 +84,22 @@ namespace ChestBrowser
             }
         }
 
-        public override void PreSaveAndQuit()
-        {
-            Config.SaveValues();
-        }
-
-        public override void PostUpdateInput()
-        {
-            try
-            {
-                if (LoadedFKTModSettings && !Main.gameMenu)
-                {
-                    UpdateModSettings();
-                }
-            }
-            catch { }
-        }
-
-        private void LoadModSettings()
-        {
-            ModSetting setting = ModSettingsAPI.CreateModSettingConfig(this);
-            setting.AddBool("isCheatMod", "Enable Cheat Mode", false);
-            setting.AddBool("isInfinityRange", "Enable Infinity Range", false);
-            setting.AddInt("searchRangeX", "Search Range X", 4, ChestBrowserUtils.maxTilesX, false);
-            setting.AddInt("searchRangeY", "Search Range Y", 4, ChestBrowserUtils.maxTilesY, false);
-            setting.AddBool("isKillTileProtect", "Enable Kill Tile Protect", false);
-            setting.AddBool("isKillWallProtect", "Enable Kill Wall Protect", false);
-        }
-
-        private void UpdateModSettings()
-        {
-            ModSetting setting;
-            if (ModSettingsAPI.TryGetModSetting(this, out setting))
-            {
-                setting.Get("isCheatMod", ref Config.isCheatMode);
-                setting.Get("isInfinityRange", ref Config.isInfinityRange);
-                setting.Get("searchRangeX", ref Config.searchRangeX);
-                setting.Get("searchRangeY", ref Config.searchRangeY);
-                setting.Get("isKillTileProtect", ref Config.isKillTileProtect);
-                setting.Get("isKillWallProtect", ref Config.isKillWallProtect);
-            }
-        }
-
         public static bool isKillTileProtect()
         {
-			bool result = true;
-			if (!Main.dedServ)
-			{
-				result = ChestBrowser.instance.chestBrowserTool.visible && Config.isKillTileProtect;
-			}
+            bool result = true;
+            if (!Main.dedServ)
+            {
+                result = ChestBrowser.instance.chestBrowserTool.visible && ModContent.GetInstance<ChestBrowserConfig>().isKillTileProtect;
+            }
             return result;
         }
         public static bool isKillWallProtect()
         {
-			bool result = true;
-			if (!Main.dedServ)
-			{
-				result = ChestBrowser.instance.chestBrowserTool.visible && Config.isKillWallProtect;
-			}
+            bool result = true;
+            if (!Main.dedServ)
+            {
+                result = ChestBrowser.instance.chestBrowserTool.visible && ModContent.GetInstance<ChestBrowserConfig>().isKillWallProtect;
+            }
             return result;
         }
     }
